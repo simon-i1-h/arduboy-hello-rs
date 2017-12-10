@@ -82,13 +82,13 @@ const A:     Buttons = Buttons { flags: 0b00001000 };
 const B:     Buttons = Buttons { flags: 0b00000100 };
 
 // see https://gcc.gnu.org/wiki/avr-gcc#Type_Layout
-#[allow(bad_style)] type c_size_t = u16;
-#[allow(bad_style)] type c_char = i8;
-#[allow(bad_style)] type c_int = i16;
-#[allow(bad_style)] type c_uint = u16;
-#[allow(bad_style)] type c_ulong = u32;
-#[allow(bad_style)] type uint8_t = u8;
-#[allow(bad_style)] type int16_t = i16;
+#[allow(non_camel_case_types)] type c_size_t = u16;
+#[allow(non_camel_case_types)] type c_char = i8;
+#[allow(non_camel_case_types)] type c_int = i16;
+#[allow(non_camel_case_types)] type c_uint = u16;
+#[allow(non_camel_case_types)] type c_ulong = u32;
+#[allow(non_camel_case_types)] type uint8_t = u8;
+#[allow(non_camel_case_types)] type int16_t = i16;
 
 static mut E: Environment = Environment {
     x: 0,
