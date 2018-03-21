@@ -54,32 +54,32 @@ impl Environment {
 }
 
 #[derive(PartialEq, Eq, Clone, Copy)]
-struct Buttons {
-    flags: u8,
+struct ButtonSet {
+    flag_set: u8,
 }
 
-impl Buttons {
+impl ButtonSet {
     #[inline(always)]
     fn pressed(&self) -> bool {
-        pressed(self.flags)
+        pressed(self.flag_set)
     }
 }
 
-impl core::ops::BitOr for Buttons {
+impl core::ops::BitOr for ButtonSet {
     type Output = Self;
 
     #[inline(always)]
     fn bitor(self, other: Self) -> Self {
-        Self { flags: self.flags | other.flags }
+        Self { flag_set: self.flag_set | other.flag_set }
     }
 }
 
-const UP:    Buttons = Buttons { flags: 0b10000000 };
-const RIGHT: Buttons = Buttons { flags: 0b01000000 };
-const LEFT:  Buttons = Buttons { flags: 0b00100000 };
-const DOWN:  Buttons = Buttons { flags: 0b00010000 };
-const A:     Buttons = Buttons { flags: 0b00001000 };
-const B:     Buttons = Buttons { flags: 0b00000100 };
+const UP:    ButtonSet = ButtonSet { flag_set: 0b10000000 };
+const RIGHT: ButtonSet = ButtonSet { flag_set: 0b01000000 };
+const LEFT:  ButtonSet = ButtonSet { flag_set: 0b00100000 };
+const DOWN:  ButtonSet = ButtonSet { flag_set: 0b00010000 };
+const A:     ButtonSet = ButtonSet { flag_set: 0b00001000 };
+const B:     ButtonSet = ButtonSet { flag_set: 0b00000100 };
 
 // see https://gcc.gnu.org/wiki/avr-gcc#Type_Layout
 #[allow(non_camel_case_types)] type c_size_t = u16;
