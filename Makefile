@@ -1,4 +1,4 @@
-.PHONY: all setup cargo build upload verify
+.PHONY: all setup cargo build upload
 
 -include options.mk
 
@@ -36,7 +36,4 @@ build: cargo
 	arduino-cli compile --fqbn $(BOARD) --build-property $(RECIPE)
 
 upload:
-	arduino-cli upload --fqbn $(BOARD) --port $(PORT)
-
-verify: cargo
-	arduino-cli compile --verify --fqbn $(BOARD) --build-property $(RECIPE)
+	arduino-cli upload --verify --fqbn $(BOARD) --port $(PORT)
