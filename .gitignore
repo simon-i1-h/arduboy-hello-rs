@@ -1,3 +1,4 @@
-*~
 target
 Cargo.lock
+avr-unknown-gnu-atmega32u4.json
+options.mk

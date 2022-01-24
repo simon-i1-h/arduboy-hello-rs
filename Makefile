@@ -1,41 +1,42 @@
-#IDE_PATH := ${HOME}/opt/arduino-1.8.5
-#PORT := /dev/ttyACM0
+.PHONY: all setup cargo build upload verify
 
-ifndef IDE_PATH
-$(error IDE_PATH is not defined)
-endif
+-include options.mk
 
 ifndef PORT
-$(error PORT is not defined)
+  $(error PORT is not defined)
+else
+  $(shell printf 'PORT = %s\n' $(PORT) > options.mk)
 endif
 
-SYSROOT := $(shell rustc +avr-toolchain --print sysroot)
+BOARD = arduino:avr:leonardo
+TARGET = avr-unknown-gnu-atmega32u4
+RECIPE = "$$(arduino-cli compile -b $(BOARD) --show-properties \
+		| grep -E '^recipe\.c\.combine\.pattern=.*$$' \
+		| sed -r 's@(.*)@\1 target/$(TARGET)/release/libhello.a@')"
 
-# TODO Better implementation
-# see https://github.com/arduino/Arduino/pull/5338
-IDE_PREF := $(shell grep -E '^recipe\.c\.combine\.pattern=.*$$' \
-			'$(IDE_PATH)/hardware/arduino/avr/platform.txt' \
-		| sed -r 's@(.*)@\1 target/arduboy/release/libhello.a@')
+all: build
 
-verify:
-	$(call do_build,--verify)
+setup:
+	# workaround https://github.com/rust-lang/compiler-builtins/issues/400
+	rustup toolchain install nightly-2021-01-07
+	rustup override set nightly-2021-01-07
+	rustup component add rust-src --toolchain nightly-2021-01-07
+	rustc --print target-spec-json -Z unstable-options \
+		--target avr-unknown-gnu-atmega328 \
+		| sed 's/atmega328/atmega32u4/g' \
+		| jq '."is-builtin" = false' \
+		> $(TARGET).json
+	arduino-cli core install arduino:avr
+	arduino-cli lib install Arduboy
+
+cargo:
+	cargo build -Z build-std=core --target $(TARGET).json --release
+
+build: cargo
+	arduino-cli compile --fqbn $(BOARD) --build-property $(RECIPE)
+
 upload:
-	$(call do_build,--upload)
+	arduino-cli upload --fqbn $(BOARD) --port $(PORT)
 
-define do_build
-	: IDE_PATH := $(IDE_PATH)
-	: PORT := $(PORT)
-	: SYSROOT := $(SYSROOT)
-	: IDE_PREF := $(IDE_PREF)
-	: ----------build-rust-program----------
-	RUST_BACKTRACE=1 \
-	XARGO_RUST_SRC='$(SYSROOT)/lib/rustlib/src/' \
-	RUSTC='$(SYSROOT)/bin/rustc' \
-	RUSTDOC='$(SYSROOT)/bin/rustdoc' \
-	xargo build -vvv --release --target=arduboy
-	: ----------build-arduboy-game----------
-	'$(IDE_PATH)/arduino' $1 -v --board arduboy:avr:arduboy \
-		--port '$(PORT)' --pref '$(IDE_PREF)' ffi.ino
-endef
-
-.PHONY: verify upload
+verify: cargo
+	arduino-cli compile --verify --fqbn $(BOARD) --build-property $(RECIPE)

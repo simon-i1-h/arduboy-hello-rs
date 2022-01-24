@@ -1,13 +1,8 @@
 [package]
 name = 'hello'
-version = '1.0.0'
-authors = ['Itoh Shimon <newbee@arrow.ocn.ne.jp>']
+version = '2.0.0'
+authors = ['Itoh Shimon <shimon@postfixnotation.org>']
 
 [lib]
 crate-type = ['staticlib']
 path = 'hello.rs'
-
-[profile.release]
-lto = true
-panic = 'abort'
-opt-level = 'z'

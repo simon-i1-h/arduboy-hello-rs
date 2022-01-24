@@ -1,5 +1,7 @@
-#![feature(lang_items)]
+#![feature(lang_items, core_intrinsics)]
 #![no_std]
+use core::intrinsics;
+use core::panic::PanicInfo;
 
 const BOTTOM: u8 = 63;
 const RIGHT_END: u8 = 127;
@@ -163,21 +165,13 @@ fn tone(frequency: u16, duration: u16) {
     unsafe { tunes_tone(frequency as c_uint, duration as c_ulong); }
 }
 
-// see https://doc.rust-lang.org/core/#how-to-use-the-core-library
-
 #[lang = "eh_personality"]
 #[no_mangle]
 pub extern fn rust_eh_personality() {
 }
 
-#[lang = "panic_fmt"]
+#[lang = "panic_impl"]
 #[no_mangle]
-pub extern fn rust_begin_panic(
-    _msg: core::fmt::Arguments,
-    _file: &'static str,
-    _line: u32,
-    _column: u32
-) -> ! {
-    loop {
-    }
+pub extern fn rust_begin_panic(_info: &PanicInfo) -> ! {
+    intrinsics::abort()
 }
